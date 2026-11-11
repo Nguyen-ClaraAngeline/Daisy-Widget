@@ -1,0 +1,20 @@
+{
+  "name": "daisy-widget",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Widget de réservation embarquable Daisy (étude de cas, sujet B)",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "mock": "node mock/server.mjs",
+    "mock:chaos": "CHAOS=1 node mock/server.mjs",
+    "dev": "npm run build && npm run mock"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
