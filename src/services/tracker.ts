@@ -8,7 +8,7 @@ export function createTracker(studioKey: string) {
   const emit = (name: string, props: Record<string, unknown> = {}) => {
     try {
       window.dispatchEvent(new CustomEvent("daisy:event", { detail: { name, studio: studioKey, session, ts: Date.now(), ...props } }));
-    } catch
+    } catch {}
   };
 
   addEventListener("pagehide", () => lastStep !== "confirmed" && emit("abandon", { step: lastStep }));
