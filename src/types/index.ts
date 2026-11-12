@@ -23,6 +23,7 @@ export type Slot = {
   seatsTotal: number;
   seatsAvailable: number;
   priceCents: number;
+  };
 
 export type Booking = { id: string; status: string; code: string; totalCents: number };
 
