@@ -5,16 +5,28 @@
   "type": "module",
   "description": "Widget de réservation embarquable Daisy (étude de cas, sujet B)",
   "scripts": {
-    "build": "node build.mjs",
+    "build:widget": "node build.mjs",
+    "dev": "npm run build:widget && next dev",
+    "build": "npm run build:widget && next build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "mock": "node mock/server.mjs",
-    "mock:chaos": "CHAOS=1 node mock/server.mjs",
-    "dev": "npm run build && npm run mock"
+    "mock:chaos": "CHAOS=1 node mock/server.mjs"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "esbuild": "^0.25.0",
-    "typescript": "^5.7.0",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.3",
     "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   }
 }

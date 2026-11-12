@@ -1,1 +1,6 @@
-@import 'tailwindcss';
+body { font-family: "Comic Sans MS", cursive; background: #fafaf9; margin: 0; padding: 32px; }
+button { background: hotpink !important; color: lime !important; font-size: 40px !important; border: 6px dashed red !important; }
+input, select, textarea { height: 8px !important; width: 20px !important; background: red !important; }
+h2 { font-size: 72px !important; text-transform: uppercase; letter-spacing: 12px; }
+p, li, div, span { color: red !important; line-height: 3 !important; }
+* { box-sizing: content-box !important; }

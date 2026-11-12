@@ -1,10 +1,11 @@
-export default function Home() {
+import Script from "next/script";
+
+export default function Page() {
   return (
-    <main className="mx-auto max-w-xl px-4 py-16">
-      <h1 className="text-2xl font-bold">Daisy — widget de réservation</h1>
-      <p className="mt-3 text-stone-600">
-        Migration vers Next.js, React et Tailwind en cours (étape 1 : socle). La page de démo arrivera à l’étape 4.
-      </p>
+    <main>
+      <h1>Site hôte de test (CSS hostile)</h1>
+      <div id="daisy-booking" data-studio="std_pk_7f2a9c" data-api="/api/mock/v1" />
+      <Script src="/widget.js" strategy="afterInteractive" />
     </main>
   );
 }
