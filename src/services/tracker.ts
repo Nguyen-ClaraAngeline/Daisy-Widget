@@ -1,7 +1,6 @@
 import { uid } from "../utils/helper";
 
-// Pas d'endpoint d'événements dans l'API : le widget émet des CustomEvent DOM ("daisy:event")
-// sur window. Une couche d'analytics (GA, Plausible, futur /events) peut les écouter sans modifier le widget.
+
 export function createTracker(studioKey: string) {
   const session = uid();
   let lastStep = "courses";
@@ -9,7 +8,7 @@ export function createTracker(studioKey: string) {
   const emit = (name: string, props: Record<string, unknown> = {}) => {
     try {
       window.dispatchEvent(new CustomEvent("daisy:event", { detail: { name, studio: studioKey, session, ts: Date.now(), ...props } }));
-    } catch { /* le tracking ne doit jamais casser le widget */ }
+    } catch
   };
 
   addEventListener("pagehide", () => lastStep !== "confirmed" && emit("abandon", { step: lastStep }));
