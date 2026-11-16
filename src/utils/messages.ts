@@ -3,6 +3,9 @@ import type { ApiErrorKind } from "../types";
 export const MSG = {
   loading: "Chargement…",
   noCourses: "Aucun cours n'est proposé pour le moment.",
+  search: "Rechercher un cours",
+  noMatch: "Aucun cours ne correspond à votre recherche.",
+  levels: { debutant: "Débutant", intermediaire: "Intermédiaire", avance: "Avancé" } as Record<string, string>,
   noSlots: "Aucune date n'est ouverte dans les 90 prochains jours.",
   courseFull: "Ce cours est complet pour le moment. De nouvelles dates sont ajoutées régulièrement, revenez bientôt.",
   slotFull: "Complet",

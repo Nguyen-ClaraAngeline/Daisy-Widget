@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { ApiError, createApi } from "../services/api";
 import { createTracker } from "../services/tracker";
 import type { Course, Slot, WidgetConfig } from "../types";
@@ -8,6 +8,9 @@ export function useBookingFlow(cfg: WidgetConfig) {
   const api = useMemo(() => createApi(cfg.apiBase, cfg.studioKey), [cfg.apiBase, cfg.studioKey]);
   const tracker = useMemo(() => createTracker(cfg.studioKey), [cfg.studioKey]);
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const slotsReq = useRef(0);
+  const submitting = useRef(false);
 
   useEffect(() => { tracker.step(state.step); }, [state.step, tracker]);
 
@@ -27,26 +30,33 @@ export function useBookingFlow(cfg: WidgetConfig) {
   useEffect(init, [init]);
 
   const loadSlots = useCallback((courseId: string) => {
+    const id = ++slotsReq.current;
     dispatch({ type: "LOADING" });
-    api.getSlots(courseId).then((slots) => dispatch({ type: "SLOTS", slots })).catch((e) => fail(e, "slots"));
+    api.getSlots(courseId)
+      .then((slots) => { if (id === slotsReq.current) dispatch({ type: "SLOTS", slots }); })
+      .catch((e) => { if (id === slotsReq.current) fail(e, "slots"); });
   }, [api, fail]);
 
   const pickCourse = (course: Course) => { dispatch({ type: "PICK_COURSE", course }); loadSlots(course.id); };
   const pickSlot = (slot: Slot) => dispatch({ type: "PICK_SLOT", slot });
 
   const submit = async () => {
-    if (!state.slot || !state.course || state.loading) return; // anti double-clic
+    if (!state.slot || !state.course || submitting.current) return;
+    const { slot, course, seats, contact } = state;
+    submitting.current = true;
     dispatch({ type: "LOADING" });
     try {
-      const booking = await api.createBooking(state.slot.id, state.seats, state.contact);
+      const booking = await api.createBooking(slot.id, seats, contact);
       tracker.confirmed();
       dispatch({ type: "BOOKED", booking });
     } catch (e) {
       if (e instanceof ApiError && (e.kind === "full" || e.kind === "cancelled")) {
         tracker.conflict(e.kind);
+        const id = ++slotsReq.current;
         try {
-          const slots = await api.getSlots(state.course.id);
-          const fresh = slots.find((s) => s.id === state.slot!.id);
+          const slots = await api.getSlots(course.id);
+          if (id !== slotsReq.current) return; // a newer request owns the screen
+          const fresh = slots.find((s) => s.id === slot.id);
           if (e.kind === "full" && fresh && fresh.seatsAvailable > 0) {
             dispatch({ type: "REDUCED", slots, slot: fresh, notice: { kind: "reduced", available: fresh.seatsAvailable } });
           } else {
@@ -56,6 +66,8 @@ export function useBookingFlow(cfg: WidgetConfig) {
       } else {
         fail(e, "contact");
       }
+    } finally {
+      submitting.current = false;
     }
   };
 
@@ -69,6 +81,10 @@ export function useBookingFlow(cfg: WidgetConfig) {
     state, pickCourse, pickSlot, submit, retry,
     setContact: (contact: typeof state.contact) => dispatch({ type: "CONTACT", contact }),
     setSeats: (seats: number) => dispatch({ type: "SEATS", seats }),
-    back: () => dispatch({ type: "BACK" }),
+    back: () => {
+      if (submitting.current) return;
+      slotsReq.current++;
+      dispatch({ type: "BACK" });
+    },
   };
 }

@@ -15,9 +15,11 @@ export type State = {
   notice?: Notice;
 };
 
+const emptyContact: Contact = { firstName: "", lastName: "", email: "", phone: "", notes: "" };
+
 export const initialState: State = {
   step: "courses", loading: true, courses: [], slots: [], seats: 1,
-  contact: { firstName: "", lastName: "", email: "", phone: "", notes: "" },
+  contact: emptyContact,
 };
 
 export type Action =
@@ -40,13 +42,15 @@ export function reducer(s: State, a: Action): State {
     case "INIT": return { ...s, loading: false, studio: a.studio, courses: a.courses, error: undefined };
     case "PICK_COURSE": return { ...s, course: a.course, step: "slots", slots: [], loading: true, notice: undefined, error: undefined };
     case "SLOTS": return { ...s, loading: false, slots: a.slots, error: undefined };
-    case "PICK_SLOT": return { ...s, slot: a.slot, seats: Math.min(s.seats, a.slot.seatsAvailable, s.studio?.policy.maxSeats ?? 1) || 1, step: "contact", notice: undefined, error: undefined };
+    case "PICK_SLOT":
+      return {
+        ...s, slot: a.slot, step: "contact", notice: undefined, error: undefined,
+        seats: Math.min(s.seats, a.slot.seatsAvailable, s.studio?.policy.maxSeats ?? 1) || 1,
+      };
     case "CONTACT": return { ...s, contact: a.contact };
     case "SEATS": return { ...s, seats: a.seats };
-    case "BOOKED": return { ...s, step: "confirmed", loading: false, booking: a.booking, error: undefined };
-    // Créneau perdu : retour à la liste rafraîchie, coordonnées conservées.
+    case "BOOKED": return { ...s, step: "confirmed", loading: false, booking: a.booking, contact: emptyContact, error: undefined };
     case "CONFLICT": return { ...s, step: "slots", loading: false, slots: a.slots, slot: undefined, notice: a.notice, error: undefined };
-    // Il reste des places, mais moins que demandé : on reste sur le formulaire.
     case "REDUCED": return { ...s, loading: false, slots: a.slots, slot: a.slot, seats: Math.min(s.seats, a.slot.seatsAvailable), notice: a.notice, error: undefined };
     case "FAIL": return { ...s, loading: false, error: a.error };
     case "BACK":

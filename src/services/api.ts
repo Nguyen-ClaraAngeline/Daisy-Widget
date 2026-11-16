@@ -15,6 +15,8 @@ const ERR: Record<string, ApiErrorKind> = {
 };
 
 const day = (d: Date) => d.toISOString().slice(0, 10);
+const num = (v: unknown, fallback = 0) => (typeof v === "number" && Number.isFinite(v) ? v : fallback);
+const httpsUrl = (v: unknown) => (typeof v === "string" && /^https:\/\//i.test(v) ? v : undefined);
 
 const mapStudio = (s: any): Studio => ({
   id: s.studio_id, name: s.name, timezone: s.timezone || "Europe/Paris", currency: s.currency || "EUR",
@@ -25,13 +27,15 @@ const mapStudio = (s: any): Studio => ({
     maxSeats: s.booking_policy?.max_seats_per_booking ?? 1,
   },
 });
+
 const mapCourse = (c: any): Course => ({
-  id: c.course_id, name: c.name, description: c.description ?? "", durationMinutes: c.duration_minutes,
-  priceCents: c.price_cents, imageUrl: c.image_url || undefined, level: c.level || undefined,
+  id: String(c.course_id), name: String(c.name ?? ""), description: typeof c.description === "string" ? c.description : "",
+  durationMinutes: num(c.duration_minutes), priceCents: num(c.price_cents),
+  imageUrl: httpsUrl(c.image_url), level: c.level || undefined,
 });
 const mapSlot = (s: any): Slot => ({
-  id: s.slot_id, startsAt: s.starts_at, seatsTotal: s.seats_total,
-  seatsAvailable: s.seats_available, priceCents: s.price_cents,
+  id: String(s.slot_id), startsAt: String(s.starts_at), seatsTotal: num(s.seats_total),
+  seatsAvailable: num(s.seats_available), priceCents: num(s.price_cents),
 });
 
 export function createApi(base: string, studioKey: string) {
@@ -48,7 +52,10 @@ export function createApi(base: string, studioKey: string) {
       const body = await res.json().catch(() => ({}));
       const kind: ApiErrorKind =
         ERR[body.error] ??
-        (res.status === 403 ? "origin" : res.status === 429 ? "rate_limited" : res.status >= 500 ? "server" : "validation");
+        (res.status === 403 ? "origin"
+          : res.status === 429 ? "rate_limited"
+          : res.status === 404 || res.status >= 500 ? "server"
+          : "validation");
       throw new ApiError(kind, res.status, body.available);
     } catch (e) {
       if (e instanceof ApiError) throw e;

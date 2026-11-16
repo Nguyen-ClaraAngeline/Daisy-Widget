@@ -7,7 +7,7 @@ export const Loading = () => (
   </div>
 );
 
-const RETRYABLE: ApiErrorKind[] = ["network", "timeout", "server", "uncertain"];
+const RETRYABLE: ApiErrorKind[] = ["network", "timeout", "server"];
 
 export const ErrorBanner = ({ kind, onRetry }: { kind: ApiErrorKind; onRetry: () => void }) => (
   <div className="dw-banner error" role="alert">
