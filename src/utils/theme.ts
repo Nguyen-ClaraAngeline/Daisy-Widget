@@ -4,6 +4,7 @@ import type { WidgetConfig } from "../types";
 // Customisation : la couleur vient du back-office (GET /studio), le reste est une liste fermée.
 const RADII: Record<string, string> = { none: "0px", soft: "8px", round: "16px" };
 const FONTS: Record<string, string> = {
+  round: "'Daisy Rounded', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', 'Varela Round', system-ui, sans-serif",
   inherit: "inherit",
   sans: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
   serif: "Georgia, 'Times New Roman', serif",
@@ -47,6 +48,6 @@ export function themeStyle(primaryColor: string | undefined, cfg: Pick<WidgetCon
     "--dw-primary": primary,
     "--dw-on-primary": onPrimary,
     "--dw-radius": RADII[cfg.radius ?? "soft"] ?? RADII.soft,
-    "--dw-font": FONTS[cfg.font ?? "sans"] ?? FONTS.sans,
+    "--dw-font": FONTS[cfg.font ?? "round"] ?? FONTS.round,
   } as CSSProperties;
 }
